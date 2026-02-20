@@ -98,7 +98,7 @@ First, install [leiningen](https://leiningen.org/). Then you can launch the app
 on your own computer by running the following command:
 
 ```
-$ lein ring server
+$ PORT=3000 lein run
 ```
 
 This will launch a server running the app and open your default web browser to 

@@ -18,8 +18,7 @@
   (:require [clojure.string :as s]
             [pronouns.config :refer [pronouns-table]]
             [pronouns.util :as u]
-            [hiccup.core :refer :all]
-            [hiccup.element :as e]
+            [hiccup2.core :as h]
             [hiccup.util :refer [escape-html]]))
 
 (defn prose-comma-list
@@ -121,21 +120,22 @@
   (let [sub-objs (map #(s/join "/" (take 2 %)) pronoun-declensions)
         title (str "Pronoun Island: " (prose-comma-list sub-objs) " examples")
         examples (map #(apply examples-block %) pronoun-declensions)]
-    (html
-     [:html
-      [:head
-       [:title title]
-       [:meta {:name "viewport" :content "width=device-width"}]
-       [:meta {:charset "utf-8"}]
-       [:meta {:name "description" :content (u/strip-markup examples)}]
-       [:meta {:name "twitter:card" :content "summary"}]
-       [:meta {:name "twitter:title" :content title}]
-       [:meta {:name "twitter:description" :content (u/strip-markup examples)}]
-       [:link {:rel "stylesheet" :href "/pronouns.css"}]]
-      [:body
-       (header-block title)
-       examples
-       (footer-block)]])))
+    (str
+     (h/html
+      [:html
+       [:head
+        [:title title]
+        [:meta {:name "viewport" :content "width=device-width"}]
+        [:meta {:charset "utf-8"}]
+        [:meta {:name "description" :content (u/strip-markup examples)}]
+        [:meta {:name "twitter:card" :content "summary"}]
+        [:meta {:name "twitter:title" :content title}]
+        [:meta {:name "twitter:description" :content (u/strip-markup examples)}]
+        [:link {:rel "stylesheet" :href "/pronouns.css"}]]
+       [:body
+        (header-block title)
+        examples
+        (footer-block)]]))))
 
 (defn table-lookup* [pronouns-string]
   (let [inputs (s/split pronouns-string #"/")
@@ -161,68 +161,71 @@
         links (map make-link abbreviations)
         title "Pronoun Island"
         description "Pronoun.is is a website for personal pronoun usage examples."]
-    (html
-     [:html
-      [:head
-       [:title title]
-       [:meta {:name "description" :content description}]
-       [:meta {:name "twitter:card" :content "summary"}]
-       [:meta {:name "twitter:title" :content title}]
-       [:meta {:name "twitter:description" :content description}]
-       [:meta {:name "viewport" :content "width=device-width"}]
-       [:meta {:charset "utf-8"}]
-       [:link {:rel "stylesheet" :href "/pronouns.css"}]]
-      [:body
-       (header-block title)
-       [:div {:class "section table"}
-        [:p "pronoun.is is a website for personal pronoun usage examples"]
-        [:p "here are some pronouns the site knows about:"]
-        [:ul links]
-        [:p [:small (href "all-pronouns" "see all pronouns in the database")]]]]
-      (footer-block)])))
+    (str
+     (h/html
+      [:html
+       [:head
+        [:title title]
+        [:meta {:name "description" :content description}]
+        [:meta {:name "twitter:card" :content "summary"}]
+        [:meta {:name "twitter:title" :content title}]
+        [:meta {:name "twitter:description" :content description}]
+        [:meta {:name "viewport" :content "width=device-width"}]
+        [:meta {:charset "utf-8"}]
+        [:link {:rel "stylesheet" :href "/pronouns.css"}]]
+       [:body
+        (header-block title)
+        [:div {:class "section table"}
+         [:p "pronoun.is is a website for personal pronoun usage examples"]
+         [:p "here are some pronouns the site knows about:"]
+         [:ul links]
+         [:p [:small (href "all-pronouns" "see all pronouns in the database")]]]]
+        (footer-block)]))))
 
 (defn all-pronouns []
   (let [abbreviations (u/abbreviate @pronouns-table)
         links (map make-link abbreviations)
         title "Pronoun Island"]
-    (html
-     [:html
-      [:head
-       [:title title]
-       [:meta {:name "viewport" :content "width=device-width"}]
-       [:meta {:charset "utf-8"}]
-       [:link {:rel "stylesheet" :href "/pronouns.css"}]]
-      [:body
-       (header-block title)
-       [:div {:class "section table"}
-        [:p "All pronouns the site knows about:"]
-        [:ul links]]]
-      (footer-block)])))
+    (str
+     (h/html
+      [:html
+       [:head
+        [:title title]
+        [:meta {:name "viewport" :content "width=device-width"}]
+        [:meta {:charset "utf-8"}]
+        [:link {:rel "stylesheet" :href "/pronouns.css"}]]
+       [:body
+        (header-block title)
+        [:div {:class "section table"}
+         [:p "All pronouns the site knows about:"]
+         [:ul links]]]
+        (footer-block)]))))
 
 (defn not-found [path]
   (let [title "Pronoun Island: English Language Examples"
         or-re #"/[oO][rR]/"]
-    (html
-     [:html
-      [:head
-       [:title title]
-       [:meta {:name "viewport" :content "width=device-width"}]
-       [:meta {:charset "utf-8"}]
-       [:link {:rel "stylesheet" :href "/pronouns.css"}]]
-      [:body
-       (header-block title)
-       [:div {:class "section examples"}
-        [:p [:h2 "We couldn't find those pronouns in our database :("]
-         "If you think we should have them, please reach out!"]
-        (when (re-find or-re path)
-          (let [alts (s/split path or-re)
-                new-path (str "/" (s/join "/:OR/" alts))]
-            [:div
-             "Did you mean: "
-             (href new-path
-                   (str "pronoun.is"
-                        new-path))]))]
-       (footer-block)]])))
+    (str
+     (h/html
+      [:html
+       [:head
+        [:title title]
+        [:meta {:name "viewport" :content "width=device-width"}]
+        [:meta {:charset "utf-8"}]
+        [:link {:rel "stylesheet" :href "/pronouns.css"}]]
+       [:body
+        (header-block title)
+        [:div {:class "section examples"}
+         [:p [:h2 "We couldn't find those pronouns in our database :("]
+          "If you think we should have them, please reach out!"]
+         (when (re-find or-re path)
+           (let [alts (s/split path or-re)
+                 new-path (str "/" (s/join "/:OR/" alts))]
+              [:div
+               "Did you mean: "
+               (href new-path
+                     (str "pronoun.is"
+                          new-path))]))]
+         (footer-block)]]))))
 
 (defn pronouns [params]
   (let [path (params :*)

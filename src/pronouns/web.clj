@@ -16,7 +16,6 @@
 
 (ns pronouns.web
   (:require [compojure.core :refer [defroutes GET PUT POST DELETE ANY]]
-            [compojure.handler :refer [site]]
             [compojure.route :as route]
             [clojure.string :as s]
             [clojure.java.io :as io]
@@ -83,5 +82,10 @@
       params/wrap-params))
 
 (defn -main []
+  (when-not (:port env)
+    (binding [*out* *err*]
+      (println "Error: PORT environment variable is required")
+      (println "Example: PORT=3000 lein run"))
+    (System/exit 1))
   (let [port (Integer. (:port env))]
     (jetty/run-jetty app {:port port})))
