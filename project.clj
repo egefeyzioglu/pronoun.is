@@ -14,8 +14,6 @@
             [lein-ring "0.12.6"]]
   :uberjar-name "pronouns-standalone.jar"
   :main pronouns.web
-  ;; FIXME morgan.astra <2018-11-14 Wed>
-  ;; Is this production profile used for anything?
   :profiles {:production {:env {:production true}}
            :dev {:ring {:handler pronouns.web/dev-app}}
            :uberjar {:aot :all
