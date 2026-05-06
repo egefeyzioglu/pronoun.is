@@ -43,8 +43,8 @@ pull request (see the next section for details)
 
 There are several ways to run pronoun.is yourself:
 
-* This repository has a `Procfile` for use with Heroku.
-* You may also build and deploy it using the provided `Dockerfile`.
+* *Recommended:* Use docker or podman: e.g. `podman build -t witch-house/pronouns .`
+* This repository has a `Procfile` for use with Heroku
 * Finally, you can create an uberjar (`lein uberjar`), set the `PORT`
  environment variable, and run it using Java: `java -jar
  target/pronouns-standalone.jar`.

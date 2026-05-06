@@ -15,8 +15,8 @@
   :uberjar-name "pronouns-standalone.jar"
   :main pronouns.web
   :profiles {:production {:env {:production true}}
-           :dev {:ring {:handler pronouns.web/dev-app}}
-           :uberjar {:aot :all
-                     :ring {:handler pronouns.web/prod-app}
-                     :dependencies [[com.github.clj-easy/graal-build-time "1.0.5"]]}}
+             :dev {:ring {:handler pronouns.web/dev-app}}
+             :uberjar {:aot :all
+                       :ring {:handler pronouns.web/prod-app}
+                       :dependencies [[com.github.clj-easy/graal-build-time "1.0.5"]]}}
   :ring {:handler pronouns.web/app})
