@@ -13,6 +13,5 @@ https://pronoun.is/a/b/c/d/e
 
 https://example.com/whatever
 
-### Should this pronoun set be included according to the [Philosophy on pronoun inclusion](/witch-house/pronoun.is/blob/master/README.md#philosophy-on-pronoun-inclusion)?
+### We generally consider the current pronouns database "complete" according to the [Philosophy on pronoun inclusion](/witch-house/pronoun.is/blob/master/README.md#philosophy-on-pronoun-inclusion). Explain how this addition is in accordance with the philosophy.
 
-yes/no

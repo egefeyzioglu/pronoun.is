@@ -33,6 +33,8 @@
   [url text]
   [:a {:href url} text])
 
+;; FIXME morgan.astra <2018-11-14 Wed>
+;; use a div for this instead of a plain bold tag
 (defn wrap-pronoun
   [pronoun]
   [:b pronoun])
@@ -93,19 +95,21 @@
    [:p "This is a bit unwieldy. If we have a good guess we'll let you use"
     " just the first one or two."]])
 
+(defn twitter-name [handle]
+  (href (str "https://www.twitter.com/" handle)
+        (str "@" handle)))
+
 (defn contact-block []
-  (let [twitter-name (fn [handle] (href (str "https://www.twitter.com/" handle)
-                                       (str "@" handle)))]
-    [:div {:class "section contact"}
-     [:p "Created by "
-         (twitter-name "morganastra")
-         ", whose "
-         (href "https://pronoun.is/she" "pronoun.is/she")]
-     [:p "pronoun.is is free software under the "
-         (href "https://www.gnu.org/licenses/agpl.html" "AGPLv3")
-         "! visit the project on "
-         (href "https://github.com/witch-house/pronoun.is" "github")]
-     [:p "<3"]]))
+  [:div {:class "section contact"}
+   [:p "Created by "
+    (href "https://morganastra.me" "@morganastra")
+    ", whose "
+    (href "https://pronoun.is/she" "pronoun.is/she")]
+   [:p "pronoun.is is free software under the "
+    (href "https://www.gnu.org/licenses/agpl.html" "AGPLv3")
+    "! visit the project on "
+    (href "https://github.com/witch-house/pronoun.is" "github")]
+   [:p "<3"]])
 
 (defn footer-block []
   [:footer (usage-block) (contact-block)])

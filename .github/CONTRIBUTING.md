@@ -7,6 +7,8 @@ submitting a PR.
 In particular we will generally not be able to accept drive-by pull requests
 from new/unknown accounts.
 
+You must use your own words when interacting with this project. Do not post LLM-generated or edited prose in issues, PR threads, etc.
+
 Also, check out the following resources:
 
   * [Info For Developers](../README.md#for-developers)
