@@ -38,6 +38,17 @@ pronouns you or a friend uses aren't supported, please let us know and
 we'll add them. Alternatively you could add them yourself and submit a
 pull request (see the next section for details)
 
+
+## For system admins and self-hosters
+
+There are several ways to run pronoun.is yourself:
+
+* *Recommended:* Use docker or podman: e.g. `podman build -t witch-house/pronouns .`
+* This repository has a `Procfile` for use with Heroku
+* Finally, you can create an uberjar (`lein uberjar`), set the `PORT`
+ environment variable, and run it using Java: `java -jar
+ target/pronouns-standalone.jar`.
+
 ## For developers
 
 ### The database
