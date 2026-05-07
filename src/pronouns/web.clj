@@ -18,13 +18,14 @@
   (:require [compojure.core :refer [defroutes GET ANY]]
             [compojure.route :as route]
             [clojure.java.io :as io]
+            [clojure.tools.logging :as log]
             [ring.adapter.jetty :as jetty]
-            [ring.middleware.logger :refer [wrap-with-logger]]
             [ring.middleware.stacktrace :refer [wrap-stacktrace]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.reload :refer [wrap-reload]]
             [ring.middleware.content-type :refer [wrap-content-type]]
             [ring.middleware.not-modified :refer [wrap-not-modified]]
+            [ring.logger :as logger]
             [environ.core :refer [env]]
             [pronouns.pages :as pages])
   (:gen-class))
@@ -62,6 +63,7 @@
   (fn [req]
     (try (handler req)
          (catch Exception e
+           (log/error e)
            (binding [*out* *err*]
              {:status 500
               :headers {"Content-Type" "text/html"}
@@ -71,7 +73,7 @@
   #(-> %
        wrap-content-type
        wrap-not-modified
-       wrap-with-logger
+       logger/wrap-with-logger
        wrap-error-page
        wrap-gnu-natalie-nguyen
        wrap-params))
