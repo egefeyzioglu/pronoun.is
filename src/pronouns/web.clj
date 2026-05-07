@@ -87,11 +87,13 @@
       wrap-stacktrace
       wrap-reload))
 
+(defn no-port []
+  (log/fatal "PORT environment variable is required"
+             "Example: PORT=3000 lein run")
+  (System/exit 1))
+
 (defn -main []
-  (when-not (:port env)
-    (binding [*out* *err*]
-      (println "Error: PORT environment variable is required")
-      (println "Example: PORT=3000 lein run"))
-    (System/exit 1))
-  (let [port (Integer. (:port env))]
-    (jetty/run-jetty prod-app {:port port})))
+  (if-let [port (:port env)]
+    (jetty/run-jetty prod-app
+                     {:port (Integer/parseInt port)})
+    (no-port)))
