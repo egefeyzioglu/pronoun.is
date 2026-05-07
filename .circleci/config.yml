@@ -11,6 +11,11 @@ jobs:
     resource_class: small
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - v1-lein-deps-{{ checksum "project.clj" }}
+            - v1-lein-deps-
+
       - run:
           name: Run unit tests
           command: lein check && lein test
@@ -18,6 +23,11 @@ jobs:
       - run:
           name: Build uberjar
           command: lein uberjar
+
+      - save_cache:
+          key: v1-lein-deps-{{ checksum "project.clj" }}
+          paths:
+            - ~/.m2
 
       - run:
           name: Install curl
