@@ -1,4 +1,4 @@
-FROM docker.io/library/eclipse-temurin:21-jre-alpine
+FROM docker.io/library/eclipse-temurin:25-jre-alpine
 
 COPY target/pronouns-standalone.jar /pronoun.is/app.jar
 

@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   lint:
     docker:
-      - image: clojure:temurin-25-lein-trixie
+      - image: clojure:temurin-25-lein-alpine
     resource_class: small
     steps:
       - checkout
@@ -23,7 +23,7 @@ jobs:
 
   unit-test:
     docker:
-      - image: clojure:temurin-25-lein-trixie
+      - image: clojure:temurin-25-lein-alpine
     resource_class: small
     steps:
       - checkout
@@ -43,7 +43,7 @@ jobs:
 
   e2e-test:
     docker:
-      - image: clojure:temurin-25-lein-trixie
+      - image: clojure:temurin-25-lein-alpine
     resource_class: small
     steps:
       - checkout
@@ -63,7 +63,7 @@ jobs:
 
   build:
     docker:
-      - image: clojure:temurin-25-lein-trixie
+      - image: clojure:temurin-25-lein-alpine
     resource_class: small
     steps:
       - checkout
