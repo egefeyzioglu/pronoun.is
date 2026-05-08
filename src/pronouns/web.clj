@@ -22,7 +22,6 @@
             [ring.adapter.jetty :as jetty]
             [ring.middleware.stacktrace :refer [wrap-stacktrace]]
             [ring.middleware.params :refer [wrap-params]]
-            [ring.middleware.reload :refer [wrap-reload]]
             [ring.middleware.content-type :refer [wrap-content-type]]
             [ring.middleware.not-modified :refer [wrap-not-modified]]
             [ring.logger :as logger]
@@ -64,10 +63,9 @@
     (try (handler req)
          (catch Exception e
            (log/error e)
-           (binding [*out* *err*]
-             {:status 500
-              :headers {"Content-Type" "text/html"}
-              :body (slurp (io/resource "500.html"))})))))
+           {:status 500
+            :headers {"Content-Type" "text/html"}
+            :body (slurp (io/resource "500.html"))}))))
 
 (def base-middleware
   #(-> %
@@ -84,8 +82,7 @@
 (def dev-app
   (-> app-routes
       base-middleware
-      wrap-stacktrace
-      wrap-reload))
+      wrap-stacktrace))
 
 (defn no-port []
   (log/fatal "PORT environment variable is required"
