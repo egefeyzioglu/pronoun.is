@@ -13,7 +13,10 @@
   (loop [port 3000]
     (if-not (tcp-bound? port)
       port
-      (recur (+ 1000 (rand-int 8999))))))
+      (recur (+ 1024 (rand-int 8900))))))
+
+(defn log-reader [proc]
+  (-> proc p/stderr io/reader))
 
 (defn wait-for-server [timeout-ms port sproc]
   (let [start-time (System/currentTimeMillis)
@@ -22,9 +25,12 @@
     (log/info "Waiting for server to start on" port start-time exp-time)
     (loop []
       (when (> (System/currentTimeMillis) exp-time)
-        (with-open [log-reader (-> (p/stderr sproc)
-                                   io/reader)]
-          (let [log-lines (take 4 (line-seq log-reader))]
+        (with-open [r (log-reader sproc)]
+          ;; We assume there will always be 4 lines to take and that's enough
+          ;; to hint at the issue. It would be better if we could read
+          ;; the whole log. Why can't we? (.destroy sproc) disappears the
+          ;; stderr and stdout streams
+          (let [log-lines (take 4 (line-seq r))]
             (log/warn log-lines)
             (throw (ex-info "Server startup timeout" {})))))
       (Thread/sleep 500)
@@ -57,9 +63,8 @@
 
       (testing "Server logs")
       (let [final-log (future
-                        (with-open [log-reader (-> (p/stderr sproc)
-                                                   io/reader)]
-                          (slurp log-reader)))]
+                        (with-open [r (log-reader sproc)]
+                          (slurp r)))]
 
         ;;NOTE: You may ask why not simply `(.destroy sproc)`?
         ;; The issue is that this prevents the io/reader from reading

@@ -25,6 +25,7 @@
                        :ring {:handler pronouns.web/prod-app}}}
   :jvm-opts ["-Dclojure.tools.logging.factory=clojure.tools.logging.impl/slf4j-factory"]
   :ring {:handler pronouns.web/prod-app}
-  :test-selectors {:default (fn [m] (not (contains? m :e2e)))
-                   :unit (fn [m] (contains? m :unit))
-                   :e2e (fn [m] (contains? m :e2e))})
+  :test-selectors {:default (complement :e2e)
+                   :unit :unit
+                   :e2e :e2e
+                   :all identity})
