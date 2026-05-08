@@ -30,3 +30,26 @@
     ["they"] ["they" "them" "their" "theirs" "themselves"]
     ["they" "..." "themself"] ["they" "them" "their" "theirs" "themself"]))
 
+(deftest ^:unit shortest-path
+  (testing "shortest forward path"
+    (are [row return]
+         (= (util/shortest-unambiguous-forward-path test-table row) return)
+      ["ze" "hir" "hir" "hirs" "hirself"] ["ze" "hir"]
+      ["ze" "zir" "zir" "zirs" "zirself"] ["ze" "zir"]
+      ["they" "them" "their" "theirs" "themselves"] ["they" "them" "their" "theirs" "themselves"]
+      ["she" "her" "her" "hers" "herself"] ["she"]))
+
+  (testing "shortest ellipses path"
+    (are [row return]
+         (= (util/shortest-unambiguous-ellipses-path test-table row) return)
+      ["ze" "hir" "hir" "hirs" "hirself"] ["ze" "..." "hirself"]
+      ["they" "them" "their" "theirs" "themselves"] ["they" "..." "themselves"]
+      ["she" "her" "her" "hers" "herself"] ["she" "..." "herself"]))
+
+  (testing "shortest overall path"
+    (are [row return]
+         (= (util/shortest-unambiguous-path test-table row) return)
+      ["ze" "hir" "hir" "hirs" "hirself"] "ze/hir"
+      ["they" "them" "their" "theirs" "themselves"] "they/.../themselves"
+      ["she" "her" "her" "hers" "herself"] "she")))
+

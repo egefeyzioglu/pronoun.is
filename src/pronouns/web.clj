@@ -81,8 +81,8 @@
 
 (def dev-app
   (-> app-routes
-      base-middleware
-      wrap-stacktrace))
+      wrap-stacktrace
+      base-middleware))
 
 (defn no-port []
   (log/fatal "PORT environment variable is required"

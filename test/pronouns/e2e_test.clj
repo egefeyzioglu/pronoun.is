@@ -1,7 +1,6 @@
 (ns pronouns.e2e-test
   (:require [clojure.test :refer [deftest testing is]]
             [clj-http.lite.client :as client]
-            ;; [clojure.edn :as edn]
             [clojure.tools.logging :as log]
             [clojure.java.shell :refer [sh]]
             [clojure.java.process :as p]
@@ -30,7 +29,7 @@
             (throw (ex-info "Server startup timeout" {})))))
       (Thread/sleep 500)
       (if (tcp-bound? port)
-        (do (log/info "Server subprocess took"
+        (do (log/info "Server process took"
                       (- (System/currentTimeMillis) start-time)
                       "ms to bind port")
             true)
@@ -48,7 +47,7 @@
 
     (wait-for-server maxwait port sproc)
 
-    (testing (str "Boot server " port " and get front page"))
+    (testing "Boot server in child process and get front page")
     (let [response (client/get (str "http://localhost:" port)
                                {:throw-exceptions false})]
 
@@ -62,6 +61,10 @@
                                                    io/reader)]
                           (slurp log-reader)))]
 
+        ;;NOTE: You may ask why not simply `(.destroy sproc)`?
+        ;; The issue is that this prevents the io/reader from reading
+        ;; the stderr stream for some reason, so we would lose the
+        ;; server process's logs.
         (sh "fuser" "-k" (str port "/tcp"))
         (log/info "*** Subprocess log follows ***\n" @final-log)
         (is (re-find #":request-method :get, :uri \"/\"" @final-log))
