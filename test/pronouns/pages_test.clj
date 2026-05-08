@@ -2,7 +2,7 @@
   (:require [pronouns.pages :as pages]
             [clojure.test :refer [deftest testing are]]))
 
-(deftest prose-comma-list
+(deftest ^:unit prose-comma-list
   (testing "`prose-comma-list` turns a list of strings into a prose list"
     (are [v s] (= (pages/prose-comma-list v) s)
       ["foo" "bar" "baz" "bobble"] "foo, bar, baz, and bobble"
@@ -11,7 +11,7 @@
       ["foo"]                      "foo"
       []                           "")))
 
-(deftest lookup-pronouns
+(deftest ^:unit lookup-pronouns
   (are [pronoun-strs pronouns]
       (= (pages/lookup-pronouns pronoun-strs)
          pronouns)

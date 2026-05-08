@@ -3,7 +3,7 @@
             [clojure.test :refer [deftest is]]
             [clojure.java.io :as io]))
 
-(deftest valid-pronouns-table
+(deftest ^:unit valid-pronouns-table
   (let [table (util/slurp-tabfile (io/resource "pronouns.tab"))]
     (is table "pronouns.tab exists and is non-empty")
     (doseq [row table]

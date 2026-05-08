@@ -32,7 +32,7 @@
             :env {"PORT" (str port)}}
            "lein" "run"))
 
-(deftest e2e-server-test
+(deftest ^:e2e e2e-server-test
   (let [maxwait 60000
         port (find-open-port)
         sproc (server port)]

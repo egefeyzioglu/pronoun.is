@@ -9,7 +9,7 @@
                  ["they" "them" "their" "theirs" "themselves"]
                  ["they" "them" "their" "theirs" "themself"]])
 
-(deftest table-filters
+(deftest ^:unit table-filters
   (testing "table-front-filter"
     (are [arg return] (= (util/table-front-filter arg test-table) return)
       ["she"] [["she" "her" "her" "hers" "herself"]]
@@ -22,7 +22,7 @@
       ["themself"] [["they" "them" "their" "theirs" "themself"]]
       ["themselves"] [["they" "them" "their" "theirs" "themselves"]])))
 
-(deftest table-lookup
+(deftest ^:unit table-lookup
   (are [arg return] (= (util/table-lookup arg test-table) return)
     ["she"] ["she" "her" "her" "hers" "herself"]
     ["ze"] ["ze" "hir" "hir" "hirs" "hirself"]
