@@ -81,11 +81,6 @@ jobs:
           paths:
             - ~/.m2
 
-      - persist_to_workspace:
-          root: .
-          paths:
-            - target/uberjar/pronouns-standalone.jar
-
 workflows:
   test-workflow:
     jobs:
