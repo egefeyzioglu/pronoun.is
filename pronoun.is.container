@@ -1,0 +1,15 @@
+[Unit]
+Description=pronoun.is service
+After=local-fs.target
+
+[Container]
+Image=witch-house/pronoun.is:latest
+ContainerName=pronoun.is
+PublishPort=3000:3000
+Environment=PORT=3000
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
