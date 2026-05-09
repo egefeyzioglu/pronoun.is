@@ -18,13 +18,13 @@
   (:require [compojure.core :refer [defroutes GET ANY]]
             [compojure.route :as route]
             [clojure.java.io :as io]
+            [clojure.tools.logging :as log]
             [ring.adapter.jetty :as jetty]
-            [ring.middleware.logger :refer [wrap-with-logger]]
             [ring.middleware.stacktrace :refer [wrap-stacktrace]]
             [ring.middleware.params :refer [wrap-params]]
-            [ring.middleware.reload :refer [wrap-reload]]
             [ring.middleware.content-type :refer [wrap-content-type]]
             [ring.middleware.not-modified :refer [wrap-not-modified]]
+            [ring.logger :as logger]
             [environ.core :refer [env]]
             [pronouns.pages :as pages])
   (:gen-class))
@@ -62,16 +62,16 @@
   (fn [req]
     (try (handler req)
          (catch Exception e
-           (binding [*out* *err*]
-             {:status 500
-              :headers {"Content-Type" "text/html"}
-              :body (slurp (io/resource "500.html"))})))))
+           (log/error e)
+           {:status 500
+            :headers {"Content-Type" "text/html"}
+            :body (slurp (io/resource "500.html"))}))))
 
 (def base-middleware
   #(-> %
        wrap-content-type
        wrap-not-modified
-       wrap-with-logger
+       logger/wrap-with-logger
        wrap-error-page
        wrap-gnu-natalie-nguyen
        wrap-params))
@@ -81,15 +81,16 @@
 
 (def dev-app
   (-> app-routes
-      base-middleware
       wrap-stacktrace
-      wrap-reload))
+      base-middleware))
+
+(defn no-port []
+  (log/fatal "PORT environment variable is required"
+             "Example: PORT=3000 lein run")
+  (System/exit 1))
 
 (defn -main []
-  (when-not (:port env)
-    (binding [*out* *err*]
-      (println "Error: PORT environment variable is required")
-      (println "Example: PORT=3000 lein run"))
-    (System/exit 1))
-  (let [port (Integer. (:port env))]
-    (jetty/run-jetty prod-app {:port port})))
+  (if-let [port (:port env)]
+    (jetty/run-jetty prod-app
+                     {:port (Integer/parseInt port)})
+    (no-port)))
