@@ -15,9 +15,6 @@
       port
       (recur (+ 1024 (rand-int 8900))))))
 
-(defn log-reader [proc]
-  (-> proc p/stderr io/reader))
-
 (defn wait-for-server [timeout-ms port sproc]
   (let [start-time (System/currentTimeMillis)
         exp-time (+ timeout-ms start-time)]
@@ -25,7 +22,7 @@
     (log/info "Waiting for server to start on" port start-time exp-time)
     (loop []
       (when (> (System/currentTimeMillis) exp-time)
-        (with-open [r (log-reader sproc)]
+        (with-open [r (-> sproc p/stderr io/reader)]
           ;; We assume there will always be 4 lines to take and that's enough
           ;; to hint at the issue. It would be better if we could read
           ;; the whole log. Why can't we? (.destroy sproc) disappears the
@@ -63,7 +60,7 @@
 
       (testing "Server logs")
       (let [final-log (future
-                        (with-open [r (log-reader sproc)]
+                        (with-open [r (-> sproc p/stderr io/reader)]
                           (slurp r)))]
 
         ;;NOTE: You may ask why not simply `(.destroy sproc)`?
