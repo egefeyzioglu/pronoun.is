@@ -15,7 +15,7 @@
   :min-lein-version "2.4.0"
   :plugins [[lein-environ "1.2.0"]
             [lein-ring "0.12.6"]
-            [lein-ancient "0.7.0"]
+            [lein-ancient "1.0.0-RC3"]
             [jonase/eastwood "1.4.3"]]
   :uberjar-name "pronouns-standalone.jar"
   :main pronouns.web
