@@ -28,4 +28,5 @@
   :test-selectors {:default (complement :e2e)
                    :unit :unit
                    :e2e :e2e
-                   :all identity})
+                   :all identity}
+  :aliases {"preflight" ["do" "check," "ancient," "eastwood," ["test" ":all"],"uberjar"]})

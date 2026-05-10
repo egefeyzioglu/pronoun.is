@@ -201,8 +201,8 @@
         (footer-block)]))))
 
 (defn not-found [path]
-  (let [title "Pronoun Island: English Language Examples"
-        or-re #"/[oO][rR]/"]
+  (let [title "Pronoun Island - Not Found :("
+        or-re #"/or/"]
     (str
      (h/html
       [:html
@@ -219,15 +219,32 @@
          (when (re-find or-re path)
            (let [alts (s/split path or-re)
                  new-path (str "/" (s/join "/:OR/" alts))]
-              [:div
-               "Did you mean: "
-               (href new-path
-                     (str "pronoun.is"
-                          new-path))]))]
-         (footer-block)]]))))
+             [:div
+              "Did you mean: "
+              (href new-path
+                    (str "pronoun.is"
+                         new-path))]))]
+        (footer-block)]]))))
+
+(defn error [_req]
+  (let [title "Pronoun Island - Error :("]
+    (str
+     (h/html
+      [:html
+       [:head
+        [:title title]
+        [:meta {:name "viewport" :content "width=device-width"}]
+        [:meta {:charset "utf-8"}]
+        [:link {:rel "stylesheet" :href "/pronouns.css"}]]
+       [:body
+        (header-block title)
+        [:div {:class "section examples"}
+         [:p [:h2 "Something went wrong :("]
+          "Go back to the " (href "/" "front page")]]
+        (footer-block)]]))))
 
 (defn pronouns [params]
-  (let [path (params :*)
+  (let [path (s/lower-case (params :*))
         param-alts (u/vec-coerce (or (params "or") []))
         path-alts (s/split path #"/:[oO][rR]/")
         pronouns (lookup-pronouns (concat path-alts param-alts))]

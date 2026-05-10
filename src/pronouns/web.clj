@@ -26,32 +26,44 @@
             [ring.middleware.not-modified :refer [wrap-not-modified]]
             [ring.logger :as logger]
             [environ.core :refer [env]]
-            [pronouns.pages :as pages])
+            [pronouns.pages :as pages]
+            [clojure.string :as s])
   (:gen-class))
 
 (defroutes app-routes
   (GET "/" []
-       {:status 200
-        :headers {"Content-Type" "text/html"}
-        :body (pages/front)})
+    {:status 200
+     :headers {"Content-Type" "text/html"}
+     :body (pages/front)})
 
   (GET "/all-pronouns" []
-       {:status 200
-        :headers {"Content-Type" "text/html"}
-        :body (pages/all-pronouns)})
+    {:status 200
+     :headers {"Content-Type" "text/html"}
+     :body (pages/all-pronouns)})
 
   (GET "/pronouns.css" []
-     {:status 200
+    {:status 200
      :headers {"Content-Type" "text/css"}
      :body (slurp (io/resource "pronouns.css"))})
 
-  (GET "/*" {params :params}
-       {:status 200
-        :headers {"Content-Type" "text/html"}
-        :body (pages/pronouns params)})
+  (GET "/coffee" []
+    {:status 418
+     :headers {"Content-Type" "text/html"}
+     :body "<strong>Sorry, this device cannot brew coffee</strong>"})
 
-  (ANY "*" []
-       (route/not-found (slurp (io/resource "404.html")))))
+  (ANY "/DEBUG-FORCE-500" []
+    (throw (Exception. "oh no a DEBUG-FORCE-500 error occurred!")))
+
+  (GET "/*" {params :params}
+    {:status 200
+     :headers {"Content-Type" "text/html"}
+     :body (pages/pronouns params)})
+
+  (ANY "*" {params :params}
+    (-> params
+        s/lower-case
+        pages/not-found
+        route/not-found)))
 
 (defn wrap-gnu-natalie-nguyen [handler]
   (fn [req]
@@ -65,7 +77,7 @@
            (log/error e)
            {:status 500
             :headers {"Content-Type" "text/html"}
-            :body (slurp (io/resource "500.html"))}))))
+            :body (pages/error req)}))))
 
 (def base-middleware
   #(-> %
