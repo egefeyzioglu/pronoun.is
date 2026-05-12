@@ -25,12 +25,16 @@
     ["a/b/c/d/e"]         '(("a" "b" "c" "d" "e"))))
 
 ;; Tests for page construction
-(defn is-element? [tag form]
+(defn is-element?
+  "Is this <form> the element described by <tag>?"
+  [tag form]
   (when (and (vector? form)
              (= (first form) tag))
     form))
 
-(defn find-element-by-tag [tag form]
+(defn find-element-by-tag
+  "Return the seq of children of <form> that match <tag>"
+  [tag form]
   (walk/walk (partial is-element? tag)
              (partial remove nil?)
              form))
@@ -56,6 +60,11 @@
     body))
 
 (defn assert-element-values
+  "Generate test assertion that a given value is found at a given path
+  within the document tree.
+
+  FIXME: The argument ordering is a historical accident of the
+  implementation and makes very little sense."
   ([v path form key-fn]
    (testing (str "Assert element values: " v path))
    (is (= v
@@ -67,7 +76,10 @@
 (defn assert-has-head-block [result title]
   (testing (str title " has head block")
     (assert-element-values title [:head :title] result second)
-    (assert-element-values "/pronouns.css" [:head :link [:rel "stylesheet"]] result :href)
+    (assert-element-values "/pronouns.css"
+                           [:head :link [:rel "stylesheet"]]
+                           result
+                           :href)
     (assert-element-values "width=device-width"
                            [:head :meta [:name "viewport"]]
                            result
@@ -78,7 +90,6 @@
     (let [anchors (find-element-by-path [:body :footer :div :p :a]
                                         result)
           labels (into #{} (filter string? anchors))]
-      ;; (println title labels)
       (is (labels "@morganastra"))
       (is (labels "pronoun.is/she"))
       (is (labels "AGPLv3"))
@@ -86,7 +97,7 @@
 
 (defn assert-twitter-card
   ([result title description]
-   (testing (str title " has twitter meta block")
+   (testing (str title " has twitter card meta block")
      (assert-element-values title
                             [:head :meta [:name "twitter:title"]]
                             result
@@ -106,6 +117,11 @@
          (is (= description pg-desc tw-desc))
          (is (= pg-desc tw-desc))))))
   ([result title] (assert-twitter-card result title nil)))
+
+(defn assert-no-twitter-card [result title]
+  (testing (str title " should NOT have a twitter card")
+    (is nil? (find-element-by-path [:head :meta [:name "twitter:card"]]
+                                   result))))
 
 (deftest ^:unit format-pronoun-examples-page
   (let [result (pages/format-pronoun-examples
@@ -136,14 +152,11 @@
         title "Pronoun Island - Not Found :("]
     (assert-has-head-block result title)
     (assert-contact-block result title)
-    (is nil? (find-element-by-path [:head :meta [:name "twitter:card"]]
-                                   result))))
-
+    (assert-no-twitter-card result title)))
 
 (deftest ^:unit error*-page
   (let [result (pages/error* "/foo/bar")
         title "Pronoun Island - Error :("]
     (assert-has-head-block result title)
     (assert-contact-block result title)
-    (is nil? (find-element-by-path [:head :meta [:name "twitter:card"]]
-                                   result))))
+    (assert-no-twitter-card result title)))
