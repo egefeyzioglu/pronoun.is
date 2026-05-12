@@ -30,4 +30,4 @@
                    :unit :unit
                    :e2e :e2e
                    :all identity}
-  :aliases {"preflight" ["do" "check," "ancient," "eastwood," ["test" ":all"],"uberjar"]})
+  :aliases {"preflight" ["do" "check," "eastwood," ["test" ":all"],"uberjar," "ancient"]})

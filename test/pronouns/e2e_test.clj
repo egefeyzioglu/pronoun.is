@@ -17,19 +17,19 @@
       port
       (recur (+ 1024 (rand-int 8900))))))
 
-(defn process->log-stream [process]
+(defn process->log-stream [^java.lang.Process process]
   (let [log-stream (stream/stream)]
     (future
       (try
-        (with-open [log-lines (-> process p/stderr io/reader line-seq)]
-          (loop [lines log-lines]
+        (with-open [log-reader (-> process p/stderr io/reader)]
+          (loop [lines (line-seq log-reader)]
             (when-let [line (first lines)]
               (stream/put! log-stream line)
               (recur (rest lines)))))
         (finally (stream/close! log-stream))))
     log-stream))
 
-(defn read-logs-and-kill [process]
+(defn read-logs-and-kill [^java.lang.Process process]
   (let [log-stream (process->log-stream process)
         log-lines (atom [])]
     (future (loop []
