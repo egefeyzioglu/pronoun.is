@@ -100,6 +100,12 @@
     :body-re #"<a href=\"all-pronouns\">"
     :log-re #":request-method :get, :uri \"/\""}
 
+   {:label "Error page"
+    :path "/DEBUG-FORCE-500"
+    :status 500
+    :body-re #"Something went wrong"
+    :log-re #"DEBUG-FORCE-500 error occurred!"}
+
    {:label "ze/hir pronouns page"
     :path "/ze/hir"
     :status 200
@@ -120,11 +126,30 @@
     :status 200
     :body-re #"Not Found"}
 
-   {:label "Error page"
-    :path "/DEBUG-FORCE-500"
-    :status 500
-    :body-re #"Something went wrong"
-    :log-re #"DEBUG-FORCE-500 error occurred!"}])
+   {:label "Unknown URL parameter"
+    :path "/they?foo=bar"
+    :status 200
+    :body-re #"they/them"}
+
+   {:label "Pronoun with parameter alternate"
+    :path "/they?or=she"
+    :status 200
+    :body-re #"they.*she"}
+
+   {:label "Pronoun with path alternate"
+    :path "/they/:or/she"
+    :status 200
+    :body-re #"they.*she"}
+
+   {:label "Pronoun with two alternates"
+    :path "/they?or=she&or=ze"
+    :status 200
+    :body-re #"they.*she.*ze"}
+
+   {:label "Non-database pronoun with 5 path segments"
+    :path "/a/b/c/d/e"
+    :status 200
+    :body-re #"a/b examples"}])
 
 (deftest ^:e2e e2e-server-test
   (let [maxwait 120000
