@@ -40,7 +40,9 @@
     (Thread/sleep 100) ;; Let the future reading the stream catch up
     (.destroy process)
     (stream/close! log-stream)
-    (Thread/sleep 100) ;; Let the process actually die
+
+    (let [exit @(p/exit-ref process)] ;; Wait for the process to die
+      (log/debug "Exit code: " exit))
 
     (string/join "\n" @log-lines)))
 
