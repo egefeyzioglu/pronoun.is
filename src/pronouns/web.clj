@@ -26,37 +26,55 @@
             [ring.middleware.not-modified :refer [wrap-not-modified]]
             [ring.logger :as logger]
             [environ.core :refer [env]]
-            [pronouns.pages :as pages])
+            [pronouns.pages :as pages]
+            [clojure.string :as s])
   (:gen-class))
 
 (defroutes app-routes
   (GET "/" []
-       {:status 200
-        :headers {"Content-Type" "text/html"}
-        :body (pages/front)})
+    {:status 200
+     :headers {"Content-Type" "text/html"}
+     :body (pages/front)})
 
   (GET "/all-pronouns" []
-       {:status 200
-        :headers {"Content-Type" "text/html"}
-        :body (pages/all-pronouns)})
+    {:status 200
+     :headers {"Content-Type" "text/html"}
+     :body (pages/all-pronouns)})
 
   (GET "/pronouns.css" []
-     {:status 200
+    {:status 200
      :headers {"Content-Type" "text/css"}
      :body (slurp (io/resource "pronouns.css"))})
 
-  (GET "/*" {params :params}
-       {:status 200
-        :headers {"Content-Type" "text/html"}
-        :body (pages/pronouns params)})
+  (GET "/coffee" []
+    {:status 418
+     :headers {"Content-Type" "text/html"}
+     :body "<strong>Sorry, this device cannot brew coffee</strong>"})
 
-  (ANY "*" []
-       (route/not-found (slurp (io/resource "404.html")))))
+  (ANY "/DEBUG-FORCE-500" []
+    (throw (Exception. "oh no a DEBUG-FORCE-500 error occurred!")))
+
+  (GET "/*" {params :params}
+    {:status 200
+     :headers {"Content-Type" "text/html"}
+     :body (pages/pronouns params)})
+
+  (ANY "*" {params :params}
+    (-> params
+        s/lower-case
+        pages/not-found
+        route/not-found)))
 
 (defn wrap-gnu-natalie-nguyen [handler]
   (fn [req]
     (when-let [resp (handler req)]
       (assoc-in resp [:headers "X-Clacks-Overhead"] "GNU Natalie Nguyen"))))
+
+(defn wrap-slash-normalization [handler]
+  (fn [req]
+    (let [uri (:uri req)
+          normalized (s/replace uri #"/{2,}" "/")]
+      (handler (assoc req :uri normalized)))))
 
 (defn wrap-error-page [handler]
   (fn [req]
@@ -65,10 +83,11 @@
            (log/error e)
            {:status 500
             :headers {"Content-Type" "text/html"}
-            :body (slurp (io/resource "500.html"))}))))
+            :body (pages/error req)}))))
 
 (def base-middleware
   #(-> %
+       wrap-slash-normalization
        wrap-content-type
        wrap-not-modified
        logger/wrap-with-logger
@@ -89,8 +108,32 @@
              "Example: PORT=3000 lein run")
   (System/exit 1))
 
+(defn uri-compliance-legacy
+  "Jetty configurator function to set UriCompliance to LEGACY.
+
+  This configuration allows URIs containing multiple subsequent slashes
+  to pass through to Ring, where we handle them as a single slash.
+
+  For context see:
+  https://jetty.org/docs/jetty/12.1/programming-guide/server/compliance.html#uri
+  and this issue on the Jetty project:
+  https://github.com/jetty/jetty.project/issues/11298 "
+  [^org.eclipse.jetty.server.Server server]
+  (doseq [^org.eclipse.jetty.server.Connector
+          connector (.getConnectors server)
+
+          ^org.eclipse.jetty.server.HttpConnectionFactory
+          factory (.getConnectionFactories connector)
+
+          :when (instance? org.eclipse.jetty.server.HttpConnectionFactory factory)
+
+          :let [^org.eclipse.jetty.server.HttpConfiguration
+                conf (.getHttpConfiguration factory)]]
+    (.setUriCompliance conf org.eclipse.jetty.http.UriCompliance/LEGACY)))
+
 (defn -main []
   (if-let [port (:port env)]
     (jetty/run-jetty prod-app
-                     {:port (Integer/parseInt port)})
+                     {:port (Integer/parseInt port)
+                      :configurator uri-compliance-legacy})
     (no-port)))

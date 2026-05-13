@@ -6,20 +6,21 @@
 **Table of Contents**
 
 - [pronoun.is](#pronounis)
-    - [For users](#for-users)
-    - [For developers](#for-developers)
-        - [The database](#the-database)
-        - [The code](#the-code)
-        - [Tests](#tests)
-        - [Running the app in a dev environment](#running-the-app-in-a-dev-environment)
-        - [The git repo](#the-git-repo)
-    - [Philosophy on pronoun inclusion](#philosophy-on-pronoun-inclusion)
-    - [FAQ](#faq)
-        - [Can we translate pronoun.is into another language?](#can-we-translate-pronounis-into-another-language)
-        - [Can we change the example sentences?](#can-we-change-the-example-sentences)
-        - [Can we add pronunciation guides?](#can-we-add-pronunciation-guides)
-        - [Can we add pluralization support (i.e. themself vs themselves)](#can-we-add-pluralization-support-ie-themself-vs-themselves)
-    - [License](#license)
+  - [For users](#for-users)
+  - [For system admins and self-hosters](#for-system-admins-and-self-hosters)
+  - [For developers](#for-developers)
+    - [The database](#the-database)
+    - [The code](#the-code)
+    - [Tests](#tests)
+    - [Running the app in a dev environment](#running-the-app-in-a-dev-environment)
+    - [The git repo](#the-git-repo)
+  - [Philosophy on pronoun inclusion](#philosophy-on-pronoun-inclusion)
+  - [FAQ](#faq)
+    - [Can we translate pronoun.is into another language?](#can-we-translate-pronounis-into-another-language)
+    - [Can we change the example sentences?](#can-we-change-the-example-sentences)
+    - [Can we add pronunciation guides?](#can-we-add-pronunciation-guides)
+    - [Can we add pluralization support (i.e. themself vs themselves)](#can-we-add-pluralization-support-ie-themself-vs-themselves)
+  - [License](#license)
 
 <!-- markdown-toc end -->
 
@@ -32,6 +33,9 @@ url path. For example, https://pronoun.is/ze/zir/zir/zirs/zirself
 That's pretty unwieldy! Fortunately you can also give it only the
 first pronoun or two: https://pronoun.is/she/her or https://pronoun.is/they
 
+You can also specific multiple pronoun sets with `?or=`; for example:
+https://pronoun.is/she?or=they
+
 Automatically filling in the rest from only one or two forms only
 works for pronouns in the [database][pronoun-database]. If the
 pronouns you or a friend uses aren't supported, please let us know and
@@ -43,7 +47,7 @@ pull request (see the next section for details)
 
 There are several ways to run pronoun.is yourself:
 
-* *Recommended:* Use docker or podman: e.g. `podman build -t witch-house/pronouns .`
+* *Recommended:* Use podman or docker: e.g. `podman build -t witch-house/pronouns .`
 * This repository has a `Procfile` for use with Heroku
 * Finally, you can create an uberjar (`lein uberjar`), set the `PORT`
  environment variable, and run it using Java: `java -jar
@@ -94,14 +98,17 @@ in that namespace should live!
 
 ### Tests
 
-Run the suite with `lein test`
+Run the suite with `lein test :all`.
 
-Test coverage is not great but getting better. Please run the tests and
+You can also do `lein test :unit` to skip e2e tests, however the e2e tests
+only add about 4 seconds of run time and can be quite informative.
+
+Test coverage is not 100% but getting pretty good. Please run the tests and
 confirm that everything passes before merging changes, and please include
 tests with any new logic you introduce in a PR!
 
-Goals for the future include setting up automated CI to run the tests for
-us on every PR branch
+You can use `lein preflight` to run everything the CI pipeline does in one
+go on the CLI. Do this before opening a PR.
 
 ### Running the app in a dev environment
 
@@ -119,10 +126,7 @@ and requires an app restart to reload.
 
 ### The git repo
 
-For most of this project's history we had separate `main` and `develop`
-branches but that's proven to be more trouble than it's worth. Going
-forward we'll be doing all development in feature branches off of `main`,
-and PRs should be issued against `main`.
+All PRs should be issued against `main`.
 
 Please follow [this guide](https://chris.beams.io/posts/git-commit/)
 for writing good commit messages :)
@@ -189,4 +193,3 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>
-
