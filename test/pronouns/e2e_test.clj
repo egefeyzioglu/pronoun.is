@@ -149,7 +149,12 @@
    {:label "Non-database pronoun with 5 path segments"
     :path "/a/b/c/d/e"
     :status 200
-    :body-re #"a/b examples"}])
+    :body-re #"a/b examples"}
+
+   {:label "Multiple slashes"
+    :path "///"
+    :status 200
+    :body-re #"<a href=\"all-pronouns\">"}])
 
 (deftest ^:e2e e2e-server-test
   (let [maxwait 120000
