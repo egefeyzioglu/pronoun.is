@@ -6,20 +6,21 @@
 **Table of Contents**
 
 - [pronoun.is](#pronounis)
-    - [For users](#for-users)
-    - [For developers](#for-developers)
-        - [The database](#the-database)
-        - [The code](#the-code)
-        - [Tests](#tests)
-        - [Running the app in a dev environment](#running-the-app-in-a-dev-environment)
-        - [The git repo](#the-git-repo)
-    - [Philosophy on pronoun inclusion](#philosophy-on-pronoun-inclusion)
-    - [FAQ](#faq)
-        - [Can we translate pronoun.is into another language?](#can-we-translate-pronounis-into-another-language)
-        - [Can we change the example sentences?](#can-we-change-the-example-sentences)
-        - [Can we add pronunciation guides?](#can-we-add-pronunciation-guides)
-        - [Can we add pluralization support (i.e. themself vs themselves)](#can-we-add-pluralization-support-ie-themself-vs-themselves)
-    - [License](#license)
+  - [For users](#for-users)
+  - [For system admins and self-hosters](#for-system-admins-and-self-hosters)
+  - [For developers](#for-developers)
+    - [The database](#the-database)
+    - [The code](#the-code)
+    - [Tests](#tests)
+    - [Running the app in a dev environment](#running-the-app-in-a-dev-environment)
+    - [The git repo](#the-git-repo)
+  - [Philosophy on pronoun inclusion](#philosophy-on-pronoun-inclusion)
+  - [FAQ](#faq)
+    - [Can we translate pronoun.is into another language?](#can-we-translate-pronounis-into-another-language)
+    - [Can we change the example sentences?](#can-we-change-the-example-sentences)
+    - [Can we add pronunciation guides?](#can-we-add-pronunciation-guides)
+    - [Can we add pluralization support (i.e. themself vs themselves)](#can-we-add-pluralization-support-ie-themself-vs-themselves)
+  - [License](#license)
 
 <!-- markdown-toc end -->
 
@@ -32,15 +33,28 @@ url path. For example, https://pronoun.is/ze/zir/zir/zirs/zirself
 That's pretty unwieldy! Fortunately you can also give it only the
 first pronoun or two: https://pronoun.is/she/her or https://pronoun.is/they
 
-Further, if you use more than one set of pronouns, that is supported as well.
-You can seperate different pronouns using <code>/:or</code>. For example,
-https://pronoun.is/they/:or/he
+You can also specify multiple pronoun sets with `?or=` or `/:or`.
+
+Example of both styles:
+* https://pronoun.is/they/:or/he
+* https://pronoun.is/she?or=they
 
 Automatically filling in the rest from only one or two forms only
 works for pronouns in the [database][pronoun-database]. If the
 pronouns you or a friend uses aren't supported, please let us know and
 we'll add them. Alternatively you could add them yourself and submit a
 pull request (see the next section for details)
+
+
+## For system admins and self-hosters
+
+There are several ways to run pronoun.is yourself:
+
+* *Recommended:* Use podman or docker: e.g. `podman build -t witch-house/pronouns .`
+* This repository has a `Procfile` for use with Heroku
+* Finally, you can create an uberjar (`lein uberjar`), set the `PORT`
+ environment variable, and run it using Java: `java -jar
+ target/pronouns-standalone.jar`.
 
 ## For developers
 
@@ -60,8 +74,8 @@ pronoun. If you're adding a set that shares the same object pronoun as other
 set(s) already in the database, please insert it immediately below those ones.
 
 If you edit the database with a text editor, make sure your editor inputs real
-tab characters in that file (a thing your editor might normally be configured 
-not to do!) In Emacs, you can input real tabs by doing Ctrl+q <tab>. 
+tab characters in that file (a thing your editor might normally be configured
+not to do!) In Emacs, you can input real tabs by doing Ctrl+q <tab>.
 In Vi you can use Ctrl+v <tab>.
 
 [pronoun-database]: resources/pronouns.tab
@@ -87,14 +101,17 @@ in that namespace should live!
 
 ### Tests
 
-Run the suite with `lein test`
+Run the suite with `lein test :all`.
 
-Test coverage is not great but getting better. Please run the tests and
+You can also do `lein test :unit` to skip e2e tests, however the e2e tests
+only add about 4 seconds of run time and can be quite informative.
+
+Test coverage is not 100% but getting pretty good. Please run the tests and
 confirm that everything passes before merging changes, and please include
 tests with any new logic you introduce in a PR!
 
-Goals for the future include setting up automated CI to run the tests for
-us on every PR branch
+You can use `lein preflight` to run everything the CI pipeline does in one
+go on the CLI. Do this before opening a PR.
 
 ### Running the app in a dev environment
 
@@ -102,22 +119,19 @@ First, install [leiningen](https://leiningen.org/). Then you can launch the app
 on your own computer by running the following command:
 
 ```
-$ lein ring server
+$ PORT=3000 lein run
 ```
 
-This will launch a server running the app and open your default web browser to 
+This will launch a server running the app and open your default web browser to
 the index page. The server will automatically reload files as you edit them -
 with the unfortunate exception of `pronouns.tab`, which is loaded as a resource
 and requires an app restart to reload.
 
 ### The git repo
 
-For most of this project's history we had separate `master` and `develop`
-branches but that's proven to be more trouble than it's worth. Going
-forward we'll be doing all development in feature branches off of `master`,
-and PRs should be issued against `master`.
+All PRs should be issued against `main`.
 
-Please follow [this guide](https://chris.beams.io/posts/git-commit/) 
+Please follow [this guide](https://chris.beams.io/posts/git-commit/)
 for writing good commit messages :)
 
 ## Philosophy on pronoun inclusion
@@ -126,6 +140,9 @@ Pronoun.is aims foremost and exclusively to be a useful resource for people to c
 
 It is possible to use these example sentences to demonstrate the usage of words that are not personal pronouns, or even cleverly insert an [entire story](https://pronoun.is/she/or%20they,%20those%20ships%20who%20were%20docked%20and%20still%20equipped%20with%20ancillaries,%20arranged%20to%20share%20the%20duty%20of%20monitoring%20our%20guest%20as%20it%20fit%20into%20their%20routines;%20that%20was%20the%20agreement,%20despite%20it%20being%20less%20convenient%20for%20me%20to%20participate%20at%20all,%20on%20the%20grounds%20that%20certain%20visitors%20might%20prefer%20a%20constant%20individual%20companion%20to%20what%20might%20seem,%20depending%20on%20their%20past%20experiences,%20to%20be%20undue%20attention%20from%20every%20soldier%20they%20passed.%20As%20usual,%20then,%20I%20took%20the%20first%20shift/the%20one%20possession%20of%20hers%20that%20Station%20Security%20hadn't%20confiscated,%20a/knowingly%20left%20with%20her.%20What%20a%20Presger%20frisbee%20might%20do%20or%20even%20look%20like%20I%20couldn't%20say.%20She%20hadn't%20seemed%20the%20sort%20to%20have%20alien%20technology,%20but,%20then%20again,%20neither%20had%20I/another%20unremarkable%20stranger,%20quite%20a%20ways%20down%20the%20concourse,%20who%20caught%20it%20with%20a%20degree%20of%20coordination%20that%20most%20would%20have%20overlooked.%20It%20did%20not%20escape%20my%20notice,%20however.%20"Cousin,"%20I%20said,%20enough%20to%20convey%20-%20unless%20our%20visitor%20were%20quite%20ignorant,%20but,%20of%20course,%20at%20this%20point%20I%20was%20certain%20that%20she%20couldn't%20be%20-%20both%20that%20I%20knew%20what%20she%20was%20not%20and%20that%20I%20was%20giving%20her%20the%20benefit%20of%20the%20doubt%20as%20to%20what,%20or%20who,%20she%20was)! However, as a policy we will not include such entries in the database.
 
+We consider the pronoun database to be essentially complete. If you believe
+that a set of personal pronouns meeting the guidelines above is missing and
+should be included, please reach out to me to discuss before opening a PR.
 
 ## FAQ
 
@@ -138,7 +155,7 @@ idea of patching the pronoun.is codebase to support rending pages in different
 languages as long as it doesn't make the code substantially more complicated.
 
 Even if we add I18N support to the code, other language versions of the site
-should have their own domains names (ideally with clever TLD puns like 
+should have their own domains names (ideally with clever TLD puns like
 pronoun.is has for english!)
 
 (This was discussed in issues #13, #14, and #66)
@@ -165,7 +182,7 @@ enough that non-programmers can edit it and keep the URLs short, pretty, and
 readable to humans as a sentence if you take all the punctuation out.
 
 ## License
-Copyright © 2014-2018 Morgan Astra <m@morganastra.me>
+Copyright © 2014-2026 Morgan Astra <morganastra@proton.me>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -179,4 +196,3 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>
-

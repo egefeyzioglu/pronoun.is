@@ -1,5 +1,5 @@
 ;; pronoun.is - a website for pronoun usage examples
-;; Copyright (C) 2014 - 2018 Morgan Astra
+;; Copyright (C) 2014 - 2026 Morgan Astra
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU Affero General Public License as
@@ -18,8 +18,7 @@
   (:require [clojure.string :as s]
             [pronouns.config :refer [pronouns-table]]
             [pronouns.util :as u]
-            [hiccup.core :refer :all]
-            [hiccup.element :as e]
+            [hiccup2.core :as h]
             [hiccup.util :refer [escape-html]]))
 
 (defn prose-comma-list
@@ -92,31 +91,29 @@
 (defn usage-block []
   [:div {:class "section usage"}
    [:p "Full usage: "
-    ;; FIXME morgan.astra <2018-11-14 Wed>
-    ;; This looks really ugly in the browser
-       [:tt "https://pronoun.is/subject-pronoun/object-pronoun/possessive-determiner/possessive-pronoun/reflexive"]
-       " displays examples of your pronouns."]
-	[:p "If you use two or more pronouns: "
-    ;; FIXME morgan.astra <2018-11-14 Wed> Duplicated from above by egefeyzioglu <2020-07-29 Wed>
-    ;; This looks really ugly in the browser
-       [:tt "https://pronoun.is/pronoun-as-above/:or/pronoun-as-above"]
-       " displays examples of your pronouns."]
+    [:code "pronoun.is/subject/object/possessive-determiner/possessive/reflexive"]]
+   [:p "You can also specify two or more pronoun sets with "
+    [:code "?or="] " or " [:code "/:or"]]
+   [:p "For example: "
+    [:code "pronoun.is/she?or=they"]]
    [:p "This is a bit unwieldy. If we have a good guess we'll let you use"
-       " just the first one or two."]])
+    " just the first one or two."]])
+
+(defn twitter-name [handle]
+  (href (str "https://www.twitter.com/" handle)
+        (str "@" handle)))
 
 (defn contact-block []
-  (let [twitter-name (fn [handle] (href (str "https://www.twitter.com/" handle)
-                                       (str "@" handle)))]
-    [:div {:class "section contact"}
-     [:p "Written by "
-         (twitter-name "morganastra")
-         ", whose "
-         (href "https://pronoun.is/she" "pronoun.is/she")]
-     [:p "pronoun.is is free software under the "
-         (href "https://www.gnu.org/licenses/agpl.html" "AGPLv3")
-         "! visit the project on "
-         (href "https://github.com/witch-house/pronoun.is" "github")]
-     [:p "&lt;3"]]))
+  [:div {:class "section contact"}
+   [:p "Created by "
+    (href "https://morganastra.me" "@morganastra")
+    ", whose "
+    (href "https://pronoun.is/she" "pronoun.is/she")]
+   [:p "pronoun.is is free software under the "
+    (href "https://www.gnu.org/licenses/agpl.html" "AGPLv3")
+    "! visit the project on "
+    (href "https://github.com/witch-house/pronoun.is" "github")]
+   [:p "<3"]])
 
 (defn footer-block []
   [:footer (usage-block) (contact-block)])
@@ -126,21 +123,20 @@
   (let [sub-objs (map #(s/join "/" (take 2 %)) pronoun-declensions)
         title (str "Pronoun Island: " (prose-comma-list sub-objs) " examples")
         examples (map #(apply examples-block %) pronoun-declensions)]
-    (html
-     [:html
-      [:head
-       [:title title]
-       [:meta {:name "viewport" :content "width=device-width"}]
-       [:meta {:charset "utf-8"}]
-       [:meta {:name "description" :content (u/strip-markup examples)}]
-       [:meta {:name "twitter:card" :content "summary"}]
-       [:meta {:name "twitter:title" :content title}]
-       [:meta {:name "twitter:description" :content (u/strip-markup examples)}]
-       [:link {:rel "stylesheet" :href "/pronouns.css"}]]
-      [:body
-       (header-block title)
-       examples
-       (footer-block)]])))
+    [:html
+     [:head
+      [:title title]
+      [:meta {:name "viewport" :content "width=device-width"}]
+      [:meta {:charset "utf-8"}]
+      [:meta {:name "description" :content (u/strip-markup examples)}]
+      [:meta {:name "twitter:card" :content "summary"}]
+      [:meta {:name "twitter:title" :content title}]
+      [:meta {:name "twitter:description" :content (u/strip-markup examples)}]
+      [:link {:rel "stylesheet" :href "/pronouns.css"}]]
+     [:body
+      (header-block title)
+      examples
+      (footer-block)]]))
 
 (defn table-lookup* [pronouns-string]
   (let [inputs (s/split pronouns-string #"/")
@@ -161,79 +157,106 @@
         label path]
     [:li (href link label)]))
 
-(defn front []
+(defn front* []
   (let [abbreviations (take 6 (u/abbreviate @pronouns-table))
         links (map make-link abbreviations)
         title "Pronoun Island"
         description "Pronoun.is is a website for personal pronoun usage examples."]
-    (html
-     [:html
-      [:head
-       [:title title]
-       [:meta {:name "description" :content description}]
-       [:meta {:name "twitter:card" :content "summary"}]
-       [:meta {:name "twitter:title" :content title}]
-       [:meta {:name "twitter:description" :content description}]
-       [:meta {:name "viewport" :content "width=device-width"}]
-       [:meta {:charset "utf-8"}]
-       [:link {:rel "stylesheet" :href "/pronouns.css"}]]
-      [:body
-       (header-block title)
-       [:div {:class "section table"}
-        [:p "pronoun.is is a website for personal pronoun usage examples"]
-        [:p "here are some pronouns the site knows about:"]
-        [:ul links]
-        [:p [:small (href "all-pronouns" "see all pronouns in the database")]]]]
-      (footer-block)])))
+    [:html
+     [:head
+      [:title title]
+      [:meta {:name "description" :content description}]
+      [:meta {:name "twitter:card" :content "summary"}]
+      [:meta {:name "twitter:title" :content title}]
+      [:meta {:name "twitter:description" :content description}]
 
-(defn all-pronouns []
+      [:meta {:name "viewport" :content "width=device-width"}]
+      [:meta {:charset "utf-8"}]
+      [:link {:rel "stylesheet" :href "/pronouns.css"}]]
+     [:body
+      (header-block title)
+      [:div {:class "section table"}
+       [:p "pronoun.is is a website for personal pronoun usage examples"]
+       [:p "here are some pronouns the site knows about:"]
+       [:ul links]
+       [:p [:small (href "all-pronouns" "see all pronouns in the database")]]]
+      (footer-block)]]))
+
+(defn all-pronouns* []
   (let [abbreviations (u/abbreviate @pronouns-table)
         links (map make-link abbreviations)
-        title "Pronoun Island"]
-    (html
-     [:html
-      [:head
-       [:title title]
-       [:meta {:name "viewport" :content "width=device-width"}]
-       [:meta {:charset "utf-8"}]
-       [:link {:rel "stylesheet" :href "/pronouns.css"}]]
-      [:body
-       (header-block title)
-       [:div {:class "section table"}
-        [:p "All pronouns the site knows about:"]
-        [:ul links]]]
-      (footer-block)])))
+        title "Pronoun Island"
+        description "Pronoun.is is a website for personal pronoun usage examples."]
+    [:html
+     [:head
+      [:title title]
+      [:meta {:name "description" :content description}]
+      [:meta {:name "twitter:card" :content "summary"}]
+      [:meta {:name "twitter:title" :content title}]
+      [:meta {:name "twitter:description" :content description}]
 
-(defn not-found [path]
-  (let [title "Pronoun Island: English Language Examples"
-        or-re #"/[oO][rR]/"]
-    (html
-     [:html
-      [:head
-       [:title title]
-       [:meta {:name "viewport" :content "width=device-width"}]
-       [:meta {:charset "utf-8"}]
-       [:link {:rel "stylesheet" :href "/pronouns.css"}]]
-      [:body
-       (header-block title)
-       [:div {:class "section examples"}
-        [:p [:h2 "We couldn't find those pronouns in our database :("]
-         "If you think we should have them, please reach out!"]
-        (when (re-find or-re path)
-          (let [alts (s/split path or-re)
-                new-path (str "/" (s/join "/:OR/" alts))]
-            [:div
-             "Did you mean: "
-             (href new-path
-                   (str "pronoun.is"
-                        new-path))]))]
-       (footer-block)]])))
+      [:meta {:name "viewport" :content "width=device-width"}]
+      [:meta {:charset "utf-8"}]
+      [:link {:rel "stylesheet" :href "/pronouns.css"}]]
+     [:body
+      (header-block title)
+      [:div {:class "section table"}
+       [:p "All pronouns the site knows about:"]
+       [:ul links]]
+      (footer-block)]]))
+
+(defn not-found* [path]
+  (let [title "Pronoun Island - Not Found :("
+        or-re #"/or/"]
+    [:html
+     [:head
+      [:title title]
+      [:meta {:name "viewport" :content "width=device-width"}]
+      [:meta {:charset "utf-8"}]
+      [:link {:rel "stylesheet" :href "/pronouns.css"}]]
+     [:body
+      (header-block title)
+      [:div {:class "section examples"}
+       [:p [:h2 "We couldn't find those pronouns in our database :("]
+        "If you think we should have them, please reach out!"]
+       (when (re-find or-re path)
+         (let [alts (s/split path or-re)
+               new-path (str "/" (s/join "/:or/" alts))]
+           [:div
+            "Did you mean: "
+            (href new-path
+                  (str "pronoun.is"
+                       new-path))]))]
+      (footer-block)]]))
+
+(defn error* [_req]
+  (let [title "Pronoun Island - Error :("]
+    [:html
+     [:head
+      [:title title]
+      [:meta {:name "viewport" :content "width=device-width"}]
+      [:meta {:charset "utf-8"}]
+      [:link {:rel "stylesheet" :href "/pronouns.css"}]]
+     [:body
+      (header-block title)
+      [:div {:class "section examples"}
+       [:p [:h2 "Something went wrong :("]
+        "Go back to the " (href "/" "front page")]]
+      (footer-block)]]))
+
+(defn render [data]
+  (-> data h/html str))
+
+(def front (comp render front*))
+(def all-pronouns (comp render all-pronouns*))
+(def not-found (comp render not-found*))
+(def error (comp render error*))
 
 (defn pronouns [params]
-  (let [path (params :*)
+  (let [path (s/lower-case (params :*))
         param-alts (u/vec-coerce (or (params "or") []))
         path-alts (s/split path #"/:[oO][rR]/")
         pronouns (lookup-pronouns (concat path-alts param-alts))]
-    (if (seq pronouns)
-      (format-pronoun-examples pronouns)
-      (not-found path))))
+    (render (if (seq pronouns)
+              (format-pronoun-examples pronouns)
+              (not-found path)))))

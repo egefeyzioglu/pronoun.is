@@ -1,9 +1,10 @@
 (ns pronouns.resource-test
   (:require [pronouns.util :as util]
-            [clojure.test :refer [deftest testing is]]))
+            [clojure.test :refer [deftest is]]
+            [clojure.java.io :as io]))
 
-(deftest valid-pronouns-table
-  (let [table (util/slurp-tabfile "resources/pronouns.tab")]
+(deftest ^:unit valid-pronouns-table
+  (let [table (util/slurp-tabfile (io/resource "pronouns.tab"))]
     (is table "pronouns.tab exists and is non-empty")
     (doseq [row table]
       (is (= (count row) 5)

@@ -1,42 +1,94 @@
-# Clojure CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-clojure/ for more details
-#
-version: 2
+version: 2.1
+
 jobs:
-  build:
+  lint:
     docker:
-      # specify the version you desire here
-      - image: circleci/clojure:lein-2.7.1
-      
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
-
-    working_directory: ~/repo
-
-    environment:
-      LEIN_ROOT: "true"
-      # Customize the JVM maximum heap limit
-      JVM_OPTS: -Xmx3200m
-    
+      - image: clojure:temurin-25-lein-alpine
+    resource_class: small
     steps:
       - checkout
-
-      # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "project.clj" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+            - v1-lein-deps-{{ checksum "project.clj" }}
+            - v1-lein-deps-
 
-      - run: lein deps
+      - run:
+          name: Run linter
+          command: lein check && lein eastwood
 
       - save_cache:
+          key: v1-lein-deps-{{ checksum "project.clj" }}
           paths:
             - ~/.m2
-          key: v1-dependencies-{{ checksum "project.clj" }}
-        
-      # run tests!
-      - run: lein test
+
+  unit-test:
+    docker:
+      - image: clojure:temurin-25-lein-alpine
+    resource_class: small
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-lein-deps-{{ checksum "project.clj" }}
+            - v1-lein-deps-
+
+      - run:
+          name: Run unit tests
+          command: lein test :unit
+
+      - save_cache:
+          key: v1-lein-deps-{{ checksum "project.clj" }}
+          paths:
+            - ~/.m2
+
+  e2e-test:
+    docker:
+      - image: clojure:temurin-25-lein-alpine
+    resource_class: small
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-lein-deps-{{ checksum "project.clj" }}
+            - v1-lein-deps-
+
+      - run:
+          name: Run e2e tests
+          command: lein test :e2e
+
+      - save_cache:
+          key: v1-lein-deps-{{ checksum "project.clj" }}
+          paths:
+            - ~/.m2
+
+  build:
+    docker:
+      - image: clojure:temurin-25-lein-alpine
+    resource_class: small
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-lein-deps-{{ checksum "project.clj" }}
+            - v1-lein-deps-
+
+      - run:
+          name: Build uberjar
+          command: lein uberjar
+
+      - save_cache:
+          key: v1-lein-deps-{{ checksum "project.clj" }}
+          paths:
+            - ~/.m2
+
+workflows:
+  test-workflow:
+    jobs:
+      - lint
+      - unit-test
+      - e2e-test
+      - build:
+          requires:
+            - lint
+            - unit-test
+            - e2e-test
